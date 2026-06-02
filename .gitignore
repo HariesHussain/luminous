@@ -40,7 +40,4 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# google verification
-/googlecfa264e9601c4487.html
-/public/googlecfa264e9601c4487.html
 
