@@ -2,10 +2,10 @@
 
 LUMINOUS is an elite luxury hair salon and wellness atelier located in Mumbai, India. Dedicated to the craft of couture styling, skin rejuvenation, and bespoke beauty rituals, the maison merges contemporary techniques with timeless elegance.
 
-Website URL: https://luminous-salon.com
-Booking Portal: https://booking.luminous-salon.com
+Website URL: https://luminous-navy.vercel.app
+Booking Portal: https://luminous-navy.vercel.app
 Contact Concierge: +91 98765 43210 (WhatsApp Available)
-Email: maison@luminous-salon.com
+Email: maison@luminous-navy.vercel.app
 Address: 123 Elegance Boulevard, Suite 500, Mumbai 400001
 
 ---
@@ -68,4 +68,4 @@ True beauty is not designed. It is meticulously revealed. Every visit begins wit
 
 ## Booking Information
 
-Sessions are custom-scheduled. Appointments and consultations can be arranged via the WhatsApp concierge at +91 98765 43210 or booked online at https://booking.luminous-salon.com.
+Sessions are custom-scheduled. Appointments and consultations can be arranged via the WhatsApp concierge at +91 98765 43210 or booked online at https://luminous-navy.vercel.app.

@@ -1,7 +1,8 @@
 import { MetadataRoute } from "next";
+import { siteConfig } from "@/config/siteConfig";
 
 export default function robots(): MetadataRoute.Robots {
-  const baseUrl = "https://luminous-salon.com";
+  const baseUrl = siteConfig.websiteUrl;
 
   return {
     rules: {

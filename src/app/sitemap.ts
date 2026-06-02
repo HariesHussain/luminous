@@ -1,7 +1,8 @@
 import { MetadataRoute } from "next";
+import { siteConfig } from "@/config/siteConfig";
 
 export default function sitemap(): MetadataRoute.Sitemap {
-  const baseUrl = "https://luminous-salon.com";
+  const baseUrl = siteConfig.websiteUrl;
   
   return [
     {
