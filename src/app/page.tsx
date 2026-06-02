@@ -2,16 +2,18 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import dynamic from "next/dynamic";
 import Preloader from "@/components/preloader/Preloader";
 import Navbar from "@/components/layout/Navbar";
-import Footer from "@/components/layout/Footer";
 import Hero from "@/components/sections/Hero";
-import About from "@/components/sections/About";
-import Services from "@/components/sections/Services";
-import Gallery from "@/components/sections/Gallery";
-import Testimonials from "@/components/sections/Testimonials";
-import FAQ from "@/components/sections/FAQ";
-import BookingCTA from "@/components/sections/BookingCTA";
+
+const About = dynamic(() => import("@/components/sections/About"), { ssr: true });
+const Services = dynamic(() => import("@/components/sections/Services"), { ssr: true });
+const Gallery = dynamic(() => import("@/components/sections/Gallery"), { ssr: true });
+const Testimonials = dynamic(() => import("@/components/sections/Testimonials"), { ssr: true });
+const FAQ = dynamic(() => import("@/components/sections/FAQ"), { ssr: true });
+const BookingCTA = dynamic(() => import("@/components/sections/BookingCTA"), { ssr: true });
+const Footer = dynamic(() => import("@/components/layout/Footer"), { ssr: true });
 
 export default function Home() {
   // CHANGED: introduced isPreloaderComplete state and client-mount tracker to prevent hydration errors

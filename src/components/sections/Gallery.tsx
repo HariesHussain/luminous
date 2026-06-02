@@ -123,17 +123,6 @@ export const Gallery: React.FC = () => {
               <div key={i} className="w-1.5 h-1.5 rounded-full bg-cream/20" />
             ))}
           </div>
-
-          {/* View More button */}
-          <div className="flex justify-center mt-6 px-4">
-            <a 
-              href="/"
-              className="inline-flex items-center gap-3 border border-gold/30 text-gold text-xs tracking-[0.25em] uppercase px-8 py-3 hover:border-gold/60 transition-colors duration-300 font-body"
-            >
-              View Full Portfolio
-              <span className="text-gold/60">→</span>
-            </a>
-          </div>
         </div>
 
         {/* DESKTOP LAYOUT (asymmetric Magazine Grid) */}

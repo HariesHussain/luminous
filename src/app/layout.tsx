@@ -36,6 +36,9 @@ export const metadata: Metadata = {
     ],
   },
   manifest: "/manifest.webmanifest",
+  verification: {
+    google: "googlecfa264e9601c4487",
+  },
   robots: {
     index: true,
     follow: true,

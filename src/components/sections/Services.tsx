@@ -18,7 +18,7 @@ interface ServiceCardProps {
 }
 
 // Sub-component: ServiceCard (with Mobile-Tap & Desktop-Hover support)
-const ServiceCard: React.FC<ServiceCardProps> = ({ service, variants }) => {
+const ServiceCard: React.FC<ServiceCardProps> = React.memo(({ service, variants }) => {
   const cardRef = useRef<HTMLDivElement>(null);
   const [isHovered, setIsHovered] = useState(false);
   const [isTapped, setIsTapped] = useState(false);
@@ -160,7 +160,7 @@ const ServiceCard: React.FC<ServiceCardProps> = ({ service, variants }) => {
       )}
     </motion.div>
   );
-};
+});
 
 export const Services: React.FC<ServicesProps> = ({ isPreloaderComplete = true }) => {
   const underlineRef = useRef<HTMLDivElement | null>(null);

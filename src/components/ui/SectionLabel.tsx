@@ -25,4 +25,4 @@ export const SectionLabel: React.FC<SectionLabelProps> = ({ number, text, classN
   );
 };
 
-export default SectionLabel;
+export default React.memo(SectionLabel);

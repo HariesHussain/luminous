@@ -33,4 +33,4 @@ export const RevealText: React.FC<RevealTextProps> = ({
   );
 };
 
-export default RevealText;
+export default React.memo(RevealText);
