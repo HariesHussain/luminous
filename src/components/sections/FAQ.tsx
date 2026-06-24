@@ -2,16 +2,18 @@
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { siteConfig } from "@/config/siteConfig";
+import { useSiteConfigContext } from "@/context/SiteConfigContext";
+import EditableText from "../ui/EditableText";
 
 interface FAQItemProps {
   question: string;
   answer: string;
   isOpen: boolean;
   onToggle: () => void;
+  faqIndex: number;
 }
 
-const FAQItem: React.FC<FAQItemProps> = ({ question, answer, isOpen, onToggle }) => {
+const FAQItem: React.FC<FAQItemProps> = ({ question, answer, isOpen, onToggle, faqIndex }) => {
   return (
     <div className="border-b border-gold/15 last:border-none py-6">
       <button
@@ -20,7 +22,9 @@ const FAQItem: React.FC<FAQItemProps> = ({ question, answer, isOpen, onToggle })
         aria-expanded={isOpen}
       >
         <span className="font-display font-light text-lg md:text-xl text-cream group-hover:text-gold transition-colors duration-300">
-          {question}
+          <EditableText fieldKey={`faqs[${faqIndex}].question`} as="span" nested>
+            {question}
+          </EditableText>
         </span>
         <span className="text-gold text-xl transition-transform duration-300 shrink-0 select-none">
           {isOpen ? "−" : "+"}
@@ -36,9 +40,11 @@ const FAQItem: React.FC<FAQItemProps> = ({ question, answer, isOpen, onToggle })
             transition={{ duration: 0.3, ease: "easeInOut" }}
             className="overflow-hidden"
           >
-            <p className="font-body font-light text-cream/70 text-sm md:text-base leading-relaxed">
-              {answer}
-            </p>
+            <div className="font-body font-light text-cream/70 text-sm md:text-base leading-relaxed">
+              <EditableText fieldKey={`faqs[${faqIndex}].answer`} as="p" nested>
+                {answer}
+              </EditableText>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -47,7 +53,10 @@ const FAQItem: React.FC<FAQItemProps> = ({ question, answer, isOpen, onToggle })
 };
 
 export const FAQ: React.FC = () => {
+  const { config } = useSiteConfigContext();
   const [openIndex, setOpenIndex] = useState<number | null>(0);
+
+  const faqs = (config.faqs as { question: string; answer: string }[]) || [];
 
   return (
     <section 
@@ -89,13 +98,14 @@ export const FAQ: React.FC = () => {
           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
           className="border-t border-gold/15"
         >
-          {siteConfig.faqs.map((faq, idx) => (
+          {faqs.map((faq, idx) => (
             <FAQItem
               key={idx}
               question={faq.question}
               answer={faq.answer}
               isOpen={openIndex === idx}
               onToggle={() => setOpenIndex(openIndex === idx ? null : idx)}
+              faqIndex={idx}
             />
           ))}
         </motion.div>

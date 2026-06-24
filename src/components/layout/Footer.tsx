@@ -1,17 +1,21 @@
 "use client";
 
 import React from "react";
-import { siteConfig } from "@/config/siteConfig";
+import { useSiteConfigContext } from "@/context/SiteConfigContext";
 import { getWhatsAppURL } from "@/lib/whatsapp";
+import { SocialItem } from "@/types";
+import EditableText from "../ui/EditableText";
 
 export const Footer: React.FC = () => {
+  const { config } = useSiteConfigContext();
   const currentYear = new Date().getFullYear();
 
-  const instagramUrl = siteConfig.socials.find((s) => s.platform === "Instagram")?.url || "https://instagram.com";
-  const facebookUrl = siteConfig.socials.find((s) => s.platform === "Facebook")?.url || "https://facebook.com";
+  const socials = (config.socials as SocialItem[]) || [];
+  const instagramUrl = socials.find((s) => s.platform === "Instagram")?.url || "https://instagram.com";
+  const facebookUrl = socials.find((s) => s.platform === "Facebook")?.url || "https://facebook.com";
 
   const waURL = getWhatsAppURL(
-    siteConfig.whatsapp.number,
+    config.whatsapp?.number || "919876543210",
     "Hello LUMINOUS, I found you through your website and would like to book an appointment."
   );
 
@@ -24,13 +28,19 @@ export const Footer: React.FC = () => {
         {/* Left Column: Logo + Tagline */}
         <div className="flex flex-col gap-3">
           <h2 className="text-3xl font-display font-light tracking-[0.25em] text-cream">
-            {siteConfig.name}
+            <EditableText fieldKey="name" as="span">
+              {config.name}
+            </EditableText>
           </h2>
           <p className="text-[10px] tracking-[0.3em] uppercase text-gold font-body">
-            {siteConfig.tagline}
+            <EditableText fieldKey="tagline" as="span">
+              {config.tagline}
+            </EditableText>
           </p>
           <span className="text-xs text-cream/50 font-body font-light leading-relaxed mt-2 max-w-xs">
-            An elite sanctuary dedicated to the craft of couture styling, skin rejuvenation, and beauty artistry.
+            <EditableText fieldKey="footerDescription" as="span">
+              An elite sanctuary dedicated to the craft of couture styling, skin rejuvenation, and beauty artistry.
+            </EditableText>
           </span>
         </div>
 
@@ -105,7 +115,7 @@ export const Footer: React.FC = () => {
       <div className="max-w-7xl mx-auto px-6 md:px-12 border-t border-gold/10 pt-8">
         <div className="flex flex-col md:flex-row justify-between items-center gap-4 text-[10px] tracking-[0.2em] uppercase text-cream/40 font-body">
           <div className="flex flex-col gap-1 items-center md:items-start">
-            <span>&copy; {currentYear} {siteConfig.name} · All rights reserved.</span>
+            <span>&copy; {currentYear} {config.name} · All rights reserved.</span>
             <a
               href="https://harieshussain.tech"
               target="_blank"
@@ -123,7 +133,7 @@ export const Footer: React.FC = () => {
 
         {/* Visually hidden NAP block for search engine crawler local SEO */}
         <address className="sr-only">
-          {siteConfig.name}, {siteConfig.address}, Tel: {siteConfig.phone}
+          {config.name}, {config.address}, Tel: {config.phone}
         </address>
       </div>
     </footer>

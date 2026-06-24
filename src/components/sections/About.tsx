@@ -2,23 +2,27 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { siteConfig } from "@/config/siteConfig";
+import { useSiteConfigContext } from "@/context/SiteConfigContext";
 import { useScrollReveal } from "@/hooks/useScrollReveal";
 import { useCountUp } from "@/hooks/useCountUp";
+import EditableText from "../ui/EditableText";
 
 interface AboutProps {
   isPreloaderComplete?: boolean;
 }
 
 export const About: React.FC<AboutProps> = ({ isPreloaderComplete = true }) => {
+  const { config } = useSiteConfigContext();
   const [sectionRef, hasRevealed] = useScrollReveal(0.1);
 
   // Stats counting values triggered by scroll reveal and preloader status
-  const yearsCount = useCountUp(siteConfig.aboutStats.years, 1.6, isPreloaderComplete && hasRevealed);
-  const clientsCount = useCountUp(siteConfig.aboutStats.clients, 1.6, isPreloaderComplete && hasRevealed);
+  const yearsCount = useCountUp(config.aboutStats?.years || 12, 1.6, isPreloaderComplete && hasRevealed);
+  const clientsCount = useCountUp(config.aboutStats?.clients || 15000, 1.6, isPreloaderComplete && hasRevealed);
 
   // Clean the pull quote text of any quotation marks just in case they are present
-  const cleanPullQuote = siteConfig.aboutPullQuote.replace(/["“”]/g, "");
+  const cleanPullQuote = (config.aboutPullQuote || "").replace(/["""]/g, "");
+
+  const aboutBody = config.aboutBody as string[] || [];
 
   return (
     <section 
@@ -46,7 +50,7 @@ export const About: React.FC<AboutProps> = ({ isPreloaderComplete = true }) => {
 
             {/* Decorative opening quote behind text */}
             <span className="absolute font-display text-[8rem] text-gold/15 select-none pointer-events-none top-0 left-0 leading-none z-0">
-              “
+              &ldquo;
             </span>
 
             <div className="overflow-hidden">
@@ -57,7 +61,9 @@ export const About: React.FC<AboutProps> = ({ isPreloaderComplete = true }) => {
                 transition={{ duration: 1.1, ease: [0.22, 1, 0.36, 1], delay: 0.15 }}
                 className="relative z-10 font-display italic text-[clamp(1.4rem,5vw,2rem)] md:text-[clamp(2rem,4vw,3.5rem)] text-cream leading-tight font-light"
               >
-                {cleanPullQuote}
+                <EditableText fieldKey="aboutPullQuote" as="span">
+                  {cleanPullQuote}
+                </EditableText>
               </motion.blockquote>
             </div>
           </div>
@@ -70,13 +76,25 @@ export const About: React.FC<AboutProps> = ({ isPreloaderComplete = true }) => {
             transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
             className="lg:col-span-6 flex flex-col gap-8 text-cream/80 text-base font-body font-light leading-relaxed tracking-wide pt-12 lg:pt-0"
           >
-            <p>{siteConfig.aboutBody[0]}</p>
-            <p>{siteConfig.aboutBody[1]}</p>
+            {aboutBody[0] && (
+              <EditableText fieldKey="aboutBody[0]" as="p" nested>
+                {aboutBody[0]}
+              </EditableText>
+            )}
+            {aboutBody[1] && (
+              <EditableText fieldKey="aboutBody[1]" as="p" nested>
+                {aboutBody[1]}
+              </EditableText>
+            )}
             
             {/* Extended gold divider width to w-16 */}
             <hr className="w-16 h-px bg-gold border-none my-2 opacity-50" />
             
-            <p>{siteConfig.aboutBody[2]}</p>
+            {aboutBody[2] && (
+              <EditableText fieldKey="aboutBody[2]" as="p" nested>
+                {aboutBody[2]}
+              </EditableText>
+            )}
           </motion.div>
         </div>
 

@@ -3,15 +3,18 @@
 import React from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import Image from "next/image";
-import { siteConfig } from "@/config/siteConfig";
+import { useSiteConfigContext } from "@/context/SiteConfigContext";
 import { getWhatsAppURL } from "@/lib/whatsapp";
 import Magnetic from "../ui/Magnetic";
+import EditableText from "../ui/EditableText";
 
 interface HeroProps {
   isPreloaderComplete?: boolean;
 }
 
 export const Hero: React.FC<HeroProps> = ({ isPreloaderComplete = true }) => {
+  const { config, isEditMode, updateImageField } = useSiteConfigContext();
+
   // custom Framer Motion background image scroll parallax
   const { scrollY } = useScroll();
   const imageY = useTransform(scrollY, [0, 500], ["0%", "30%"]);
@@ -31,9 +34,14 @@ export const Hero: React.FC<HeroProps> = ({ isPreloaderComplete = true }) => {
   });
 
   const waURL = getWhatsAppURL(
-    siteConfig.whatsapp.number,
+    config.whatsapp?.number || "919876543210",
     "Hello LUMINOUS, I would like to arrange a consultation. Could you please share your available time slots?"
   );
+
+  const heroImageUrl =
+    config.heroImage ||
+    config.ogImage ||
+    "https://images.unsplash.com/photo-1560066984-138dadb4c035?q=80&w=1800&auto=format&fit=crop";
 
   return (
     <section
@@ -42,14 +50,30 @@ export const Hero: React.FC<HeroProps> = ({ isPreloaderComplete = true }) => {
       {/* Background image with parallax overlay */}
       <div className="absolute inset-0 z-0 opacity-40 overflow-hidden">
         <motion.div className="w-full h-full relative scale-110" style={{ y: imageY }}>
-          <Image
-            src="https://images.unsplash.com/photo-1560066984-138dadb4c035?q=80&w=1800&auto=format&fit=crop"
-            alt="Atelier interior"
-            fill
-            style={{ objectFit: "cover", objectPosition: "center" }}
-            priority={true}
-            className="w-full h-full"
-          />
+          <div className="relative w-full h-full group">
+            <Image
+              src={heroImageUrl}
+              alt="Atelier interior"
+              fill
+              style={{ objectFit: "cover", objectPosition: "center" }}
+              priority={true}
+              className="w-full h-full"
+              unoptimized={heroImageUrl.startsWith("http") || heroImageUrl.startsWith("blob:")}
+            />
+            {isEditMode && (
+              <label className="absolute inset-0 bg-black/55 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white cursor-pointer text-sm font-bold transition-all duration-300 z-30">
+                ✏️ Replace Hero Background
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    if (e.target.files?.[0]) updateImageField("heroImage", e.target.files[0]);
+                  }}
+                />
+              </label>
+            )}
+          </div>
         </motion.div>
         <div 
           className="absolute inset-0 z-10 pointer-events-none"
@@ -74,18 +98,20 @@ export const Hero: React.FC<HeroProps> = ({ isPreloaderComplete = true }) => {
 
       <div className="relative z-20 max-w-7xl mx-auto px-6 md:px-12 text-center flex flex-col items-center">
         {/* Tagline */}
-        <motion.p
+        <motion.div
           className="text-xs md:text-sm tracking-[0.4em] uppercase text-[#C9A84C] mb-6 font-body font-light"
           initial="hidden"
           animate={isPreloaderComplete ? "visible" : "hidden"}
           variants={heroItemVariants(0)}
         >
-          {siteConfig.tagline}
-        </motion.p>
+          <EditableText fieldKey="tagline" as="p">
+            {config.tagline}
+          </EditableText>
+        </motion.div>
 
         {/* Big Serif Heading */}
         <h1 className="text-5xl md:text-8xl font-display font-light text-[#F5F0E8] leading-[1.1] mb-8 tracking-wide">
-          {siteConfig.heroHeadline.map((line, idx) => (
+          {(config.heroHeadline as string[])?.map((line: string, idx: number) => (
             <div key={idx} className="overflow-hidden block py-1">
               <motion.span
                 variants={heroItemVariants(idx * 0.12)}
@@ -93,21 +119,29 @@ export const Hero: React.FC<HeroProps> = ({ isPreloaderComplete = true }) => {
                 animate={isPreloaderComplete ? "visible" : "hidden"}
                 className="block"
               >
-                {line}
+                <EditableText
+                  fieldKey={`heroHeadline[${idx}]`}
+                  as="span"
+                  nested
+                >
+                  {line}
+                </EditableText>
               </motion.span>
             </div>
           ))}
         </h1>
 
         {/* Subtitle */}
-        <motion.p
+        <motion.div
           className="max-w-xl text-sm md:text-base font-body text-[#F5F0E8]/70 leading-relaxed font-light mb-12"
           initial="hidden"
           animate={isPreloaderComplete ? "visible" : "hidden"}
           variants={heroItemVariants(0.28)}
         >
-          {siteConfig.heroSubtitle}
-        </motion.p>
+          <EditableText fieldKey="heroSubtitle" as="p">
+            {config.heroSubtitle}
+          </EditableText>
+        </motion.div>
 
         {/* Action Button */}
         <motion.div

@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import dynamic from "next/dynamic";
+import { SiteConfigProvider } from "@/context/SiteConfigContext";
 import Preloader from "@/components/preloader/Preloader";
 import Navbar from "@/components/layout/Navbar";
 import Hero from "@/components/sections/Hero";
@@ -37,33 +38,35 @@ export default function Home() {
   }, [mounted, isPreloaderComplete]);
 
   return (
-    <main className="relative min-h-screen bg-[#0A0A0A] overflow-x-hidden">
-      {/* Cinematic Brand Reveal Preloader (rendered client-only to ensure zero hydration issues) */}
-      <AnimatePresence mode="wait">
-        {mounted && !isPreloaderComplete && (
-          <Preloader key="preloader" onComplete={() => setIsPreloaderComplete(true)} />
-        )}
-      </AnimatePresence>
+    <SiteConfigProvider>
+      <main className="relative min-h-screen bg-[#0A0A0A] overflow-x-hidden">
+        {/* Cinematic Brand Reveal Preloader (rendered client-only to ensure zero hydration issues) */}
+        <AnimatePresence mode="wait">
+          {mounted && !isPreloaderComplete && (
+            <Preloader key="preloader" onComplete={() => setIsPreloaderComplete(true)} />
+          )}
+        </AnimatePresence>
 
-      {/* Main Page Content */}
-      {/* CHANGED: updated transition parameters and animation reveals mapped to preloader state */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: isPreloaderComplete ? 1 : 0 }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
-        className="flex flex-col min-h-screen"
-      >
-        {/* CHANGED: passed isPreloaderComplete as prop to Navbar, Hero, About, and Services for animations coordination */}
-        <Navbar isVisible={isPreloaderComplete} />
-        <Hero isPreloaderComplete={isPreloaderComplete} />
-        <About isPreloaderComplete={isPreloaderComplete} />
-        <Services isPreloaderComplete={isPreloaderComplete} />
-        <Gallery />
-        <Testimonials />
-        <FAQ />
-        <BookingCTA />
-        <Footer />
-      </motion.div>
-    </main>
+        {/* Main Page Content */}
+        {/* CHANGED: updated transition parameters and animation reveals mapped to preloader state */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: isPreloaderComplete ? 1 : 0 }}
+          transition={{ duration: 0.8, ease: "easeOut" }}
+          className="flex flex-col min-h-screen"
+        >
+          {/* CHANGED: passed isPreloaderComplete as prop to Navbar, Hero, About, and Services for animations coordination */}
+          <Navbar isVisible={isPreloaderComplete} />
+          <Hero isPreloaderComplete={isPreloaderComplete} />
+          <About isPreloaderComplete={isPreloaderComplete} />
+          <Services isPreloaderComplete={isPreloaderComplete} />
+          <Gallery />
+          <Testimonials />
+          <FAQ />
+          <BookingCTA />
+          <Footer />
+        </motion.div>
+      </main>
+    </SiteConfigProvider>
   );
 }

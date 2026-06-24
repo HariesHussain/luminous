@@ -173,5 +173,30 @@ h1, h2, h3, h4, h5, h6, .font-display {
   scrollbar-width: none;  /* Firefox */
 }
 
+/* ===== SiteBox Edit Mode Styles ===== */
+.sitebox-editable {
+  outline: 1px dashed transparent;
+  outline-offset: 2px;
+  transition: outline-color 0.2s ease, background-color 0.2s ease;
+  border-radius: 2px;
+}
+
+.sitebox-editable:hover {
+  outline-color: rgba(201, 168, 76, 0.5);
+  cursor: text;
+}
+
+.sitebox-editable:focus {
+  outline: 2px solid rgba(201, 168, 76, 0.8);
+  outline-offset: 3px;
+  background-color: rgba(201, 168, 76, 0.05);
+}
+
+/* Override the custom cursor hiding when in edit mode on editable text */
+.sitebox-editable,
+.sitebox-editable * {
+  cursor: text !important;
+}
+
 
 

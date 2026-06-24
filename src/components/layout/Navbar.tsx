@@ -2,8 +2,9 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { siteConfig } from "@/config/siteConfig";
+import { useSiteConfigContext } from "@/context/SiteConfigContext";
 import { getWhatsAppURL } from "@/lib/whatsapp";
+import EditableText from "@/components/ui/EditableText";
 
 interface NavbarProps {
   isVisible?: boolean;
@@ -27,6 +28,7 @@ const useScrolled = (threshold = 80) => {
 export const Navbar: React.FC<NavbarProps> = ({ isVisible = true }) => {
   const isScrolled = useScrolled(80);
   const [isOpen, setIsOpen] = useState(false);
+  const { config } = useSiteConfigContext();
 
   const navLinks = [
     { name: "The Maison", href: "#about" },
@@ -56,8 +58,8 @@ export const Navbar: React.FC<NavbarProps> = ({ isVisible = true }) => {
   };
 
   const waURL = getWhatsAppURL(
-    siteConfig.whatsapp.number,
-    siteConfig.whatsapp.bookingMessage
+    config.whatsapp?.number || "919876543210",
+    config.whatsapp?.bookingMessage || "Hello, I would like to book an appointment."
   );
 
   return (
@@ -78,7 +80,9 @@ export const Navbar: React.FC<NavbarProps> = ({ isVisible = true }) => {
             href="/"
             className="font-display font-light text-[#F5F0E8] hover:text-[#C9A84C] transition-colors duration-300 text-[clamp(0.85rem,4vw,1rem)] tracking-[0.25em] md:text-2xl md:tracking-[0.25em]"
           >
-            {siteConfig.name}
+            <EditableText fieldKey="name" as="span">
+              {config.name}
+            </EditableText>
           </a>
 
           {/* Desktop Nav Links (Center) */}
@@ -102,7 +106,9 @@ export const Navbar: React.FC<NavbarProps> = ({ isVisible = true }) => {
               rel="noopener noreferrer"
               className="shimmer-book-btn px-5 py-2 text-xs uppercase tracking-[0.2em] font-body hidden md:flex"
             >
-              Book Now
+              <EditableText fieldKey="bookingCTA" as="span">
+                Book Now
+              </EditableText>
             </a>
 
             {/* Mobile Menu Toggle (3 thin lines, no icons) */}

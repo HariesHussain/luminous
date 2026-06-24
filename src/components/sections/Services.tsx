@@ -1,12 +1,13 @@
 "use client";
 
 import React, { useRef, useState } from "react";
-import { motion, useMotionValue, useSpring } from "framer-motion";
+import { motion, useMotionValue, useSpring, type Variants } from "framer-motion";
 import { useGSAP } from "@gsap/react";
 import Image from "next/image";
-import { siteConfig } from "@/config/siteConfig";
+import { useSiteConfigContext } from "@/context/SiteConfigContext";
 import { Service } from "@/types";
 import gsap from "@/lib/gsap";
+import EditableText from "../ui/EditableText";
 
 interface ServicesProps {
   isPreloaderComplete?: boolean;
@@ -14,11 +15,13 @@ interface ServicesProps {
 
 interface ServiceCardProps {
   service: Service;
-  variants: any;
+  variants: Variants;
+  serviceIndex: number;
 }
 
 // Sub-component: ServiceCard (with Mobile-Tap & Desktop-Hover support)
-const ServiceCard: React.FC<ServiceCardProps> = React.memo(({ service, variants }) => {
+const ServiceCard: React.FC<ServiceCardProps> = React.memo(({ service, variants, serviceIndex }) => {
+  const { isEditMode, updateImageField } = useSiteConfigContext();
   const cardRef = useRef<HTMLDivElement>(null);
   const [isHovered, setIsHovered] = useState(false);
   const [isTapped, setIsTapped] = useState(false);
@@ -67,24 +70,32 @@ const ServiceCard: React.FC<ServiceCardProps> = React.memo(({ service, variants 
 
         {/* Service Name */}
         <h3 className="font-display font-semibold text-2xl text-cream leading-tight">
-          {service.name}
+          <EditableText fieldKey={`services[${serviceIndex}].name`} as="span" nested>
+            {service.name}
+          </EditableText>
         </h3>
 
         {/* Description */}
-        <p className="font-body font-light text-cream/60 text-sm mt-3 leading-relaxed">
-          {service.description}
-        </p>
+        <div className="font-body font-light text-cream/60 text-sm mt-3 leading-relaxed">
+          <EditableText fieldKey={`services[${serviceIndex}].description`} as="p" nested>
+            {service.description}
+          </EditableText>
+        </div>
       </div>
 
       <div>
         {/* Price & Duration (Luxury Menu Layout) */}
         <div className="flex items-center w-full mt-8 gap-4">
           <span className="font-display font-medium text-xl text-gold shrink-0">
-            {service.price}
+            <EditableText fieldKey={`services[${serviceIndex}].price`} as="span" nested>
+              {service.price}
+            </EditableText>
           </span>
           <div className="flex-1 border-b border-dashed border-gold/10 self-end mb-1.5" />
           <span className="font-body font-light text-xs text-cream/30 shrink-0">
-            {service.duration.toLowerCase().replace("mins", "min")}
+            <EditableText fieldKey={`services[${serviceIndex}].duration`} as="span" nested>
+              {service.duration.toLowerCase().replace("mins", "min")}
+            </EditableText>
           </span>
         </div>
       </div>
@@ -109,13 +120,33 @@ const ServiceCard: React.FC<ServiceCardProps> = React.memo(({ service, variants 
           }}
           transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
         >
-          <Image
-            src={service.cursorImage}
-            alt={service.name}
-            fill
-            className="object-cover"
-            style={{ filter: "saturate(0.7) contrast(1.05)" }}
-          />
+          <div className="relative w-full h-full group/img">
+            <Image
+              src={service.cursorImage}
+              alt={service.name}
+              fill
+              className="object-cover"
+              style={{ filter: "saturate(0.7) contrast(1.05)" }}
+              unoptimized={service.cursorImage.startsWith("http") || service.cursorImage.startsWith("blob:")}
+            />
+            {isEditMode && (
+              <label className="absolute inset-0 bg-black/55 opacity-0 group-hover/img:opacity-100 flex items-center justify-center text-white cursor-pointer text-xs font-bold transition-all duration-300 z-30">
+                ✏️ Replace
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    if (e.target.files?.[0]) {
+                      const updated = [...([] as string[])];
+                      updated[serviceIndex] = URL.createObjectURL(e.target.files[0]);
+                      updateImageField(`services[${serviceIndex}].cursorImage`, e.target.files[0]);
+                    }
+                  }}
+                />
+              </label>
+            )}
+          </div>
           {/* Gradient overlay for readability */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent pointer-events-none" />
         </motion.div>
@@ -153,6 +184,7 @@ const ServiceCard: React.FC<ServiceCardProps> = React.memo(({ service, variants 
               sizes="192px"
               className="object-cover"
               style={{ filter: "saturate(0.75) contrast(1.05)" }}
+              unoptimized={service.cursorImage.startsWith("http") || service.cursorImage.startsWith("blob:")}
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
           </div>
@@ -163,6 +195,7 @@ const ServiceCard: React.FC<ServiceCardProps> = React.memo(({ service, variants 
 });
 
 export const Services: React.FC<ServicesProps> = ({ isPreloaderComplete = true }) => {
+  const { config } = useSiteConfigContext();
   const underlineRef = useRef<HTMLDivElement | null>(null);
 
   // GSAP scroll-drawn underline triggered by preloader completion
@@ -201,6 +234,8 @@ export const Services: React.FC<ServicesProps> = ({ isPreloaderComplete = true }
       transition: { duration: 0.8, ease: [0.22, 1, 0.36, 1] }
     }
   };
+
+  const services = (config.services as Service[]) || [];
 
   return (
     <section id="services" className="scroll-mt-20 py-16 md:py-24 lg:py-32 bg-[#1A1A1A] relative overflow-hidden">
@@ -248,11 +283,12 @@ export const Services: React.FC<ServicesProps> = ({ isPreloaderComplete = true }
           whileInView={isPreloaderComplete ? "visible" : "hidden"}
           viewport={{ once: true, margin: "-80px" }}
         >
-          {siteConfig.services.map((service, index) => (
+          {services.map((service, index) => (
             <ServiceCard 
               key={index} 
               service={service} 
-              variants={cardVariants} 
+              variants={cardVariants}
+              serviceIndex={index}
             />
           ))}
         </motion.div>

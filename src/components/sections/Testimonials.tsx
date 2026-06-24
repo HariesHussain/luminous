@@ -2,17 +2,22 @@
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { siteConfig } from "@/config/siteConfig";
+import { useSiteConfigContext } from "@/context/SiteConfigContext";
+import { TestimonialItem } from "@/types";
+import EditableText from "../ui/EditableText";
 
 export const Testimonials: React.FC = () => {
+  const { config } = useSiteConfigContext();
+  const testimonials = (config.testimonials as TestimonialItem[]) || [];
   const [activeIndex, setActiveIndex] = useState(0);
 
   useEffect(() => {
+    if (testimonials.length === 0) return;
     const interval = setInterval(() => {
-      setActiveIndex((prev) => (prev + 1) % siteConfig.testimonials.length);
+      setActiveIndex((prev) => (prev + 1) % testimonials.length);
     }, 2500);
     return () => clearInterval(interval);
-  }, []);
+  }, [testimonials.length]);
 
   const slideVariants = {
     enter: {
@@ -37,7 +42,8 @@ export const Testimonials: React.FC = () => {
     },
   };
 
-  const active = siteConfig.testimonials[activeIndex];
+  const active = testimonials[activeIndex];
+  if (!active) return null;
 
   return (
     <section 
@@ -50,7 +56,7 @@ export const Testimonials: React.FC = () => {
       
       {/* Giant quotation mark decoration */}
       <span className="absolute font-display text-[10rem] text-gold/10 select-none pointer-events-none top-4 left-1/2 -translate-x-1/2">
-        “
+        &ldquo;
       </span>
 
       <div className="max-w-7xl mx-auto px-6 md:px-12 w-full relative z-10">
@@ -82,7 +88,15 @@ export const Testimonials: React.FC = () => {
                 className="w-full flex flex-col items-center"
               >
                 <p className="font-display italic text-2xl md:text-3xl text-cream leading-relaxed max-w-2xl font-light">
-                  "{active.quote}"
+                  &ldquo;
+                  <EditableText
+                    fieldKey={`testimonials[${activeIndex}].quote`}
+                    as="span"
+                    nested
+                  >
+                    {active.quote}
+                  </EditableText>
+                  &rdquo;
                 </p>
               </motion.div>
             </AnimatePresence>
@@ -98,12 +112,22 @@ export const Testimonials: React.FC = () => {
               transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
               className="flex flex-col gap-1 items-center"
             >
-              <span className="font-body font-semibold text-sm tracking-[0.2em] text-gold uppercase">
+              <EditableText
+                fieldKey={`testimonials[${activeIndex}].name`}
+                as="span"
+                nested
+                className="font-body font-semibold text-sm tracking-[0.2em] text-gold uppercase"
+              >
                 {active.name}
-              </span>
-              <span className="font-body font-light text-xs text-cream/40 uppercase tracking-wider">
+              </EditableText>
+              <EditableText
+                fieldKey={`testimonials[${activeIndex}].title`}
+                as="span"
+                nested
+                className="font-body font-light text-xs text-cream/40 uppercase tracking-wider"
+              >
                 {active.title}
-              </span>
+              </EditableText>
             </motion.div>
           </AnimatePresence>
 

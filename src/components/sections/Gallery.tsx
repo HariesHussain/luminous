@@ -3,10 +3,16 @@
 import React from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { siteConfig } from "@/config/siteConfig";
+import { useSiteConfigContext } from "@/context/SiteConfigContext";
+import { GalleryItem } from "@/types";
 import SectionLabel from "../ui/SectionLabel";
+import EditableText from "../ui/EditableText";
 
 export const Gallery: React.FC = () => {
+  const { config, isEditMode, updateImageField } = useSiteConfigContext();
+
+  const gallery = (config.gallery as GalleryItem[]) || [];
+
   // Mapping grid items to the asymmetric grid layout classes (Desktop)
   const gridLayouts = [
     { areaClass: "md:col-span-2 md:row-span-2 aspect-square md:aspect-auto", label: "large" },
@@ -83,7 +89,7 @@ export const Gallery: React.FC = () => {
             className="flex gap-3 overflow-x-auto scroll-smooth snap-x snap-mandatory pb-4 px-4 scrollbar-none"
             style={{ msOverflowStyle: "none", scrollbarWidth: "none" }}
           >
-            {siteConfig.gallery.map((item, i) => (
+            {gallery.map((item, i) => (
               <motion.div
                 key={item.id}
                 className="relative flex-shrink-0 w-[75vw] overflow-hidden snap-start border border-gold/15"
@@ -93,25 +99,56 @@ export const Gallery: React.FC = () => {
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.08, duration: 0.5 }}
               >
-                <Image
-                  src={item.imageUrl}
-                  alt={item.title}
-                  fill
-                  className="object-cover"
-                  style={{ filter: "saturate(0.75) contrast(1.05)" }}
-                  sizes="75vw"
-                />
+                <div className="relative w-full h-full group/img">
+                  <Image
+                    src={item.imageUrl}
+                    alt={item.title}
+                    fill
+                    className="object-cover"
+                    style={{ filter: "saturate(0.75) contrast(1.05)" }}
+                    sizes="75vw"
+                    unoptimized={item.imageUrl.startsWith("http") || item.imageUrl.startsWith("blob:")}
+                  />
+                  {isEditMode && (
+                    <label className="absolute inset-0 bg-black/55 opacity-0 group-hover/img:opacity-100 flex items-center justify-center text-white cursor-pointer text-xs font-bold transition-all duration-300 z-30">
+                      ✏️ Replace Image
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={(e) => {
+                          if (e.target.files?.[0]) {
+                            const objectUrl = URL.createObjectURL(e.target.files[0]);
+                            const updatedGallery = [...gallery];
+                            updatedGallery[i] = { ...updatedGallery[i], imageUrl: objectUrl };
+                            updateImageField(`gallery[${i}].imageUrl`, e.target.files[0]);
+                          }
+                        }}
+                      />
+                    </label>
+                  )}
+                </div>
                 {/* Dark overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent pointer-events-none" />
                 
                 {/* Label bottom-left */}
                 <div className="absolute bottom-4 left-4 z-10">
-                  <span className="text-gold text-[10px] tracking-[0.2em] uppercase font-body">
+                  <EditableText
+                    fieldKey={`gallery[${i}].category`}
+                    as="span"
+                    nested
+                    className="text-gold text-[10px] tracking-[0.2em] uppercase font-body"
+                  >
                     {item.category}
-                  </span>
-                  <p className="text-cream text-sm font-display italic mt-1">
+                  </EditableText>
+                  <EditableText
+                    fieldKey={`gallery[${i}].title`}
+                    as="p"
+                    nested
+                    className="text-cream text-sm font-display italic mt-1"
+                  >
                     {item.title}
-                  </p>
+                  </EditableText>
                 </div>
               </motion.div>
             ))}
@@ -119,7 +156,7 @@ export const Gallery: React.FC = () => {
 
           {/* Scroll indicator dots */}
           <div className="flex justify-center gap-1.5 mt-4">
-            {siteConfig.gallery.map((_, i) => (
+            {gallery.map((_, i) => (
               <div key={i} className="w-1.5 h-1.5 rounded-full bg-cream/20" />
             ))}
           </div>
@@ -127,7 +164,7 @@ export const Gallery: React.FC = () => {
 
         {/* DESKTOP LAYOUT (asymmetric Magazine Grid) */}
         <div className="hidden md:grid grid-cols-3 grid-rows-[250px_250px_250px] gap-6">
-          {siteConfig.gallery.map((item, idx) => {
+          {gallery.map((item, idx) => {
             const layout = gridLayouts[idx] || { areaClass: "", label: `item-${idx}` };
             
             return (
@@ -144,14 +181,32 @@ export const Gallery: React.FC = () => {
                 {/* Visual Image */}
                 {item.imageUrl && (
                   <div className="absolute inset-0 w-full h-full overflow-hidden">
-                    <Image
-                      src={item.imageUrl}
-                      alt={item.title}
-                      fill
-                      style={{ filter: 'saturate(0.7) contrast(1.05)', objectFit: "cover" }}
-                      sizes="(max-w-768px) 100vw, 33vw"
-                      className="transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-106"
-                    />
+                    <div className="relative w-full h-full group/img">
+                      <Image
+                        src={item.imageUrl}
+                        alt={item.title}
+                        fill
+                        style={{ filter: 'saturate(0.7) contrast(1.05)', objectFit: "cover" }}
+                        sizes="(max-w-768px) 100vw, 33vw"
+                        className="transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:scale-106"
+                        unoptimized={item.imageUrl.startsWith("http") || item.imageUrl.startsWith("blob:")}
+                      />
+                      {isEditMode && (
+                        <label className="absolute inset-0 bg-black/55 opacity-0 group-hover/img:opacity-100 flex items-center justify-center text-white cursor-pointer text-xs font-bold transition-all duration-300 z-30">
+                          ✏️ Replace Image
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={(e) => {
+                              if (e.target.files?.[0]) {
+                                updateImageField(`gallery[${idx}].imageUrl`, e.target.files[0]);
+                              }
+                            }}
+                          />
+                        </label>
+                      )}
+                    </div>
                     {/* Dark multiply overlay for color harmony */}
                     <div className="absolute inset-0 bg-black/20 mix-blend-multiply pointer-events-none" />
                     {/* Editorial Color Tint Overlay */}
@@ -165,14 +220,24 @@ export const Gallery: React.FC = () => {
                 {/* Hover Reveal Details */}
                 <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-500 z-10 flex flex-col justify-between p-6">
                   {/* Category Indicator */}
-                  <span className="text-[10px] tracking-[0.25em] font-body text-gold uppercase">
+                  <EditableText
+                    fieldKey={`gallery[${idx}].category`}
+                    as="span"
+                    nested
+                    className="text-[10px] tracking-[0.25em] font-body text-gold uppercase"
+                  >
                     {item.category}
-                  </span>
+                  </EditableText>
                   
                   {/* Bottom title */}
-                  <h3 className="text-lg font-display text-cream font-light tracking-wide">
+                  <EditableText
+                    fieldKey={`gallery[${idx}].title`}
+                    as="h3"
+                    nested
+                    className="text-lg font-display text-cream font-light tracking-wide"
+                  >
                     {item.title}
-                  </h3>
+                  </EditableText>
                 </div>
               </motion.div>
             );

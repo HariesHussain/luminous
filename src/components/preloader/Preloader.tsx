@@ -3,17 +3,23 @@
 import React, { useRef } from "react";
 import { useGSAP } from "@gsap/react";
 import gsap from "@/lib/gsap";
+import { useSiteConfigContext } from "@/context/SiteConfigContext";
+import EditableText from "../ui/EditableText";
 
 interface PreloaderProps {
   onComplete: () => void;
 }
 
 export const Preloader: React.FC<PreloaderProps> = ({ onComplete }) => {
+  const { config } = useSiteConfigContext();
   const containerRef = useRef<HTMLDivElement | null>(null);
   const lineRef = useRef<HTMLDivElement | null>(null);
   const lettersRef = useRef<(HTMLSpanElement | null)[]>([]);
   const taglineRef = useRef<HTMLParagraphElement | null>(null);
   const glowRef = useRef<HTMLDivElement | null>(null);
+
+  const brandName = (config.name as string) || "LUMINOUS";
+  const brandTagline = (config.tagline as string) || "Maison de L'Atelier";
 
   useGSAP(() => {
     // Initial states
@@ -35,7 +41,7 @@ export const Preloader: React.FC<PreloaderProps> = ({ onComplete }) => {
       ease: "power2.inOut"
     }, 0.0);
 
-    // t=0.5s — Letters of "LUMINOUS" stagger in (y: 30→0, opacity: 0→1, stagger: 0.07s, ease: "power3.out")
+    // t=0.5s — Letters stagger in (y: 30→0, opacity: 0→1, stagger: 0.07s, ease: "power3.out")
     tl.to(lettersRef.current, {
       y: 0,
       opacity: 1,
@@ -44,7 +50,7 @@ export const Preloader: React.FC<PreloaderProps> = ({ onComplete }) => {
       duration: 0.8
     }, 0.5);
 
-    // t=1.3s — Tagline "Maison de L'Atelier" fades in (opacity: 0→1, y: 10→0, duration: 0.5s)
+    // t=1.3s — Tagline fades in (opacity: 0→1, y: 10→0, duration: 0.5s)
     tl.to(taglineRef.current, {
       opacity: 1,
       y: 0,
@@ -95,7 +101,7 @@ export const Preloader: React.FC<PreloaderProps> = ({ onComplete }) => {
 
       {/* Logo letters */}
       <div className="flex gap-[0.15em]">
-        {"LUMINOUS".split("").map((letter, i) => (
+        {brandName.split("").map((letter, i) => (
           <span
             key={i}
             ref={(el) => {
@@ -113,7 +119,9 @@ export const Preloader: React.FC<PreloaderProps> = ({ onComplete }) => {
         ref={taglineRef}
         className="font-display italic text-[var(--color-gold)] text-sm tracking-[0.4em] mt-4"
       >
-        Maison de L'Atelier
+        <EditableText fieldKey="tagline" as="span">
+          {brandTagline}
+        </EditableText>
       </p>
 
       {/* Glow effect */}
